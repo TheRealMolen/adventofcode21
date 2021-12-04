@@ -22,6 +22,7 @@
     <ClCompile Include="day1.cpp" />
     <ClCompile Include="day2.cpp" />
     <ClCompile Include="day3.cpp" />
+    <ClCompile Include="day4.cpp" />
     <ClCompile Include="harness.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp">
@@ -43,6 +44,7 @@
     <Text Include="data\day1.txt" />
     <Text Include="data\day2.txt" />
     <Text Include="data\day3.txt" />
+    <Text Include="data\day4.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
