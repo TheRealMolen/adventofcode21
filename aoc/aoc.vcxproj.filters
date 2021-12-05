@@ -34,6 +34,9 @@
     <ClCompile Include="day4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="day5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="harness.h">
@@ -60,6 +63,9 @@
       <Filter>data</Filter>
     </Text>
     <Text Include="data\day4.txt">
+      <Filter>data</Filter>
+    </Text>
+    <Text Include="data\day5.txt">
       <Filter>data</Filter>
     </Text>
   </ItemGroup>
