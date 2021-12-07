@@ -239,6 +239,39 @@ static inline string trim_copy(string s, const char* chars) {
 }
 
 
+// read a delimeter that must match a certain string
+inline istream& operator>>(istream& is, const char* checkstr)
+{
+    // skip ws at the start of checkstr
+    const char* currcheck = checkstr;
+    while (isspace(*currcheck))
+        ++currcheck;
+
+    // skip ws at start of istream
+    while (isspace(is.peek()))
+        is.get();
+
+    // go through checkstr char by char and ensure we get matching data out of is
+    while (*currcheck)
+    {
+        if (is.peek() != *currcheck)
+        {
+            // oh no!
+            int badval = is.peek();
+            is.setstate(ios_base::failbit);
+
+            throw format("unexpected input character. expected '{}'({}) but found '{}'({})", char(*currcheck), int(*currcheck), char(badval), int(badval));
+        }
+
+        is.get();
+        ++currcheck;
+    }
+
+    return is;
+}
+
+
+
 // ----- profiling -----
 class ScopeTimer
 {

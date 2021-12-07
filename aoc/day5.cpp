@@ -2,6 +2,7 @@
 #include "harness.h"
 #include "pt2.h"
 
+
 struct Line
 {
     using Pt = Pt2i16;
@@ -11,9 +12,7 @@ struct Line
     Line(const string& str)
     {
         istringstream is(str);
-        char comma1, comma2;
-        string dummy;
-        is >> start.x >> comma1 >> start.y >> dummy >> end.x >> comma2 >> end.y;
+        is >> start.x >> "," >> start.y >> " -> " >> end.x >> "," >> end.y;
     }
 };
 
@@ -152,8 +151,8 @@ R"(0,9 -> 5,9
 5,5 -> 8,2)";
 
     test(5, day5(READ(sample)));
-    gogogo(day5(LOAD(5)));
+    gogogo(day5(LOAD(5)), 5294);
 
     test(12, day5_2(READ(sample)));
-    gogogo(day5_2(LOAD(5)));
+    gogogo(day5_2(LOAD(5)), 21698);
 }
