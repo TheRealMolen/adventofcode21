@@ -239,7 +239,8 @@ static inline string trim_copy(string s, const char* chars) {
 }
 
 
-// read a delimeter that must match a certain string
+// read a delimiter that must match a certain string
+// eg: is >> x >> "," >> y;
 inline istream& operator>>(istream& is, const char* checkstr)
 {
     // skip ws at the start of checkstr
