@@ -2,6 +2,9 @@
 #include "harness.h"
 #include <ranges>
 
+static const int kSegCount = 7;
+
+
 inline bool is_unique_digit(const string& digit)
 {
     switch (digit.length())
@@ -29,7 +32,7 @@ int day8(const stringlist& input)
     return numuniques;
 }
 
-const char* kSegments[] =
+string kSegments[] =
 {
     "abcefg",
     "cf",
@@ -42,26 +45,6 @@ const char* kSegments[] =
     "abcdefg",
     "abcdfg",
 };
-static const int kNumSegments = 7;
-
-struct DigitInfo
-{
-    const char* segments;
-    int16_t number;
-};
-using DigitsPerLength = array<vector<DigitInfo>, kNumSegments>; // map from number of ON segments to the list of digits that could be represented
-
-DigitsPerLength g_digitInfo;
-
-void compileDigitInfo()
-{
-    for (int i=0; i<10; ++i)
-    {
-        const char* segments = kSegments[i];
-        int len = strlen(segments);        
-        g_digitInfo[len].push_back({ segments, (int16_t)i });
-    }
-}
 
 int descramble(const string& line)
 {
@@ -69,29 +52,85 @@ int descramble(const string& line)
     const string& signal = parts[0];
     const string& output = parts[1];
 
-    auto digits = split(signal, " ");
-    uint16_t possibles[kNumSegments]; // if (possibles[1] & (1<<3)) is set, it means that "b" might map to segment "d"
-    ranges::fill(possibles, 0x7f);  // 7f is all 7 segments
+    auto scrambledDigits = split(signal, " ");
+    for (string& scrambled : scrambledDigits)
+        sort(begin(scrambled), end(scrambled));
 
-    for (const string& scrambled : digits)
+    array<vector<string>, kSegCount+1> bucketByLen;
+    for (const string& scrambled : scrambledDigits)
     {
-        int len = scrambled.length();
-        if (len == kNumSegments)
-            continue;   // stupid 8 tells us NOTHING
-
-        const auto& potentials = g_digitInfo[len];
-        for (auto& digitInfo : potentials)
-        {
-
-        }
-
-        //uint8_t mask = 0;
-        //const char* curr;
-        //for (curr = segments; *curr; ++curr)
-        //    mask |= 1 << (*curr - 'a');
+        size_t len = scrambled.length();
+        auto& bucket = bucketByLen[len];
+        if (ranges::find(bucket, scrambled) == end(bucket))
+            bucket.push_back(scrambled);
     }
 
-    return (int)(signal.size() + output.size());
+    // now start deducing...
+
+    // we need a 1, 4 and 7 for our super smart heuristical analysis to work...
+    _ASSERT(!bucketByLen[2].empty() && !bucketByLen[3].empty() && !bucketByLen[4].empty());
+    _ASSERT(bucketByLen[6].size() == 3);
+
+    const string& oneScrambled = bucketByLen[2].front();
+    const string& sevenScrambled = bucketByLen[3].front();
+    char topSegment = sevenScrambled[sevenScrambled.find_first_not_of(oneScrambled)];
+
+    // now we can use 4 to find a couple more -- remove the "1" segs, and the remainder are either TL & Mid
+    string& fourScrambled = bucketByLen[4].front();
+    fourScrambled.erase(remove_if(begin(fourScrambled), end(fourScrambled), [&](char c) { return oneScrambled.find(c) != string::npos; }), end(fourScrambled));
+
+    // then we deal with 6, 9 and 0
+    auto& sixZeroNineScrambled = bucketByLen[6];
+    // we can distinguish between 6 & 9/0 because 6 won't be a superset of 1 and the others will
+    ranges::partition(sixZeroNineScrambled, [&](const string& s) { return !includes(begin(s), end(s), begin(oneScrambled), end(oneScrambled)); });
+    // likewise, of 9 and 0, only 9 will be a superset of 4
+    partition(begin(sixZeroNineScrambled) + 1, end(sixZeroNineScrambled), [&](const string& s) { return !includes(begin(s), end(s), begin(fourScrambled), end(fourScrambled)); });
+    const string& sixScrambled = sixZeroNineScrambled[0];
+    const string& zeroScrambled = sixZeroNineScrambled[1];
+    const string& nineScrambled = sixZeroNineScrambled[2];
+
+    // the bottom left is in 6 but not 9
+    char botLeftSegment = sixScrambled[sixScrambled.find_first_not_of(nineScrambled)];
+    // the middle is in 6 but not in 0
+    char middleSegment = sixScrambled[sixScrambled.find_first_not_of(zeroScrambled)];
+    // the top right is in 1 but not 6
+    char topRightSegment = oneScrambled[oneScrambled.find_first_not_of(sixScrambled)];
+    // the bottom right is in 1 but isn't the top right
+    char botRightSegment = oneScrambled[oneScrambled.find_first_not_of(topRightSegment)];
+
+    // the top left is fiddly
+    string notTopLeftScrambled{ middleSegment, topRightSegment, botRightSegment };
+    char topLeftSegment = fourScrambled[fourScrambled.find_first_not_of(notTopLeftScrambled)];
+    // the bottom segment is a bit more fiddly!
+    string notBotScrambled{ topSegment, topLeftSegment, topRightSegment, botLeftSegment, botRightSegment };
+    char bottomSegment = zeroScrambled[zeroScrambled.find_first_not_of(notBotScrambled)];
+
+    // now build a little remap table...
+    char remap[256];
+    ranges::fill(remap, '!');
+    remap[topSegment]       = 'a';
+    remap[topLeftSegment]   = 'b';
+    remap[topRightSegment]  = 'c';
+    remap[middleSegment]    = 'd';
+    remap[botLeftSegment]   = 'e';
+    remap[botRightSegment]  = 'f';
+    remap[bottomSegment]    = 'g';
+
+    int display = 0;
+    for (const string& scrambled : split(output, " "))
+    {
+        display *= 10;
+
+        string unscrambled;
+        ranges::transform(scrambled, back_inserter(unscrambled), [&](char c) { return remap[c]; });
+        _ASSERT(unscrambled.find('!') == string::npos);
+        ranges::sort(unscrambled);
+
+        size_t digit = ranges::find(kSegments, unscrambled) - &kSegments[0];
+        display += (int)digit;
+    }
+
+    return display;
 }
 
 int day8_2(const stringlist& input)
@@ -122,10 +161,7 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
 
     test(26, day8(READ(sample)));
     gogogo(day8(LOAD(8)));
-    
-    compileDigitInfo();
 
     test(5353, descramble("acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"));
-    //test(-100, day8_2(READ(sample)));
-    //gogogo(day8_2(LOAD(8)));
+    gogogo(day8_2(LOAD(8)));
 }
