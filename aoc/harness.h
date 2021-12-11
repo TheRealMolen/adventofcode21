@@ -34,42 +34,27 @@ extern HANDLE hStdOut;
 void initcolours();
 
 
-inline ostream&     RED(ostream& _Ostr)
+inline ostream& COLOUR(ostream& _Ostr, WORD code)
 {
     _Ostr.flush();
-    SetConsoleTextAttribute(hStdOut, FOREGROUND_RED | FOREGROUND_INTENSITY);
+    SetConsoleTextAttribute(hStdOut, code);
     return (_Ostr);
 }
-inline ostream&     GREEN(ostream& _Ostr)
-{
-    _Ostr.flush();
-    SetConsoleTextAttribute(hStdOut, FOREGROUND_GREEN);
-    return (_Ostr);
-}
-inline ostream&     LIGHT_GREEN(ostream& _Ostr)
-{
-    _Ostr.flush();
-    SetConsoleTextAttribute(hStdOut, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-    return (_Ostr);
-}
-inline ostream&     YELLOW(ostream& _Ostr)
-{
-    _Ostr.flush();
-    SetConsoleTextAttribute(hStdOut, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-    return (_Ostr);
-}
-inline ostream&     GREY(ostream& _Ostr)
-{
-    _Ostr.flush();
-    SetConsoleTextAttribute(hStdOut, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-    return (_Ostr);
-}
-inline ostream&     RESET(ostream& _Ostr)
-{
-    _Ostr.flush();
-    SetConsoleTextAttribute(hStdOut, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-    return (_Ostr);
-}
+inline ostream& RED(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_RED); }
+inline ostream& PINK(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_RED | FOREGROUND_INTENSITY); }
+inline ostream& BLUE(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE); }
+inline ostream& LIGHT_BLUE(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE | FOREGROUND_INTENSITY); }
+inline ostream& GREEN(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_GREEN); }
+inline ostream& LIGHT_GREEN(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_GREEN | FOREGROUND_INTENSITY); }
+inline ostream& YELLOW(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY); }
+inline ostream& GOLD(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_RED | FOREGROUND_GREEN); }
+inline ostream& LIGHT_CYAN(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY); }
+inline ostream& CYAN(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE | FOREGROUND_GREEN); }
+inline ostream& PURPLE(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE | FOREGROUND_RED); }
+inline ostream& LIGHT_PURPLE(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY); }
+inline ostream& GREY(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE); }
+inline ostream& BLACK(ostream& _Ostr) { return COLOUR(_Ostr, 0); }
+inline ostream& RESET(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY); }
 
 // GARLAND!
 struct Garland
