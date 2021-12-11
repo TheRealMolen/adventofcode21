@@ -40,19 +40,20 @@ inline ostream& COLOUR(ostream& _Ostr, WORD code)
     SetConsoleTextAttribute(hStdOut, code);
     return (_Ostr);
 }
-inline ostream& RED(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_RED); }
-inline ostream& PINK(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_RED | FOREGROUND_INTENSITY); }
-inline ostream& BLUE(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE); }
-inline ostream& LIGHT_BLUE(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE | FOREGROUND_INTENSITY); }
-inline ostream& GREEN(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_GREEN); }
-inline ostream& LIGHT_GREEN(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_GREEN | FOREGROUND_INTENSITY); }
+inline ostream& DARK_RED(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_RED); }
+inline ostream& RED(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_RED | FOREGROUND_INTENSITY); }
+inline ostream& DARK_BLUE(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE); }
+inline ostream& BLUE(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE | FOREGROUND_INTENSITY); }
+inline ostream& DARK_GREEN(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_GREEN); }
+inline ostream& GREEN(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_GREEN | FOREGROUND_INTENSITY); }
 inline ostream& YELLOW(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY); }
 inline ostream& GOLD(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_RED | FOREGROUND_GREEN); }
-inline ostream& LIGHT_CYAN(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY); }
-inline ostream& CYAN(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE | FOREGROUND_GREEN); }
-inline ostream& PURPLE(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE | FOREGROUND_RED); }
-inline ostream& LIGHT_PURPLE(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY); }
+inline ostream& CYAN(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY); }
+inline ostream& DARK_CYAN(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE | FOREGROUND_GREEN); }
+inline ostream& DARK_PURPLE(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE | FOREGROUND_RED); }
+inline ostream& PURPLE(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY); }
 inline ostream& GREY(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE); }
+inline ostream& WHITE(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY); }
 inline ostream& BLACK(ostream& _Ostr) { return COLOUR(_Ostr, 0); }
 inline ostream& RESET(ostream& _Ostr) { return COLOUR(_Ostr, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY); }
 
