@@ -27,6 +27,8 @@ struct Pt2
         return type{ x * scalar, y * scalar };
     }
 
+    auto operator<=>(const type& rhs) const = default;
+
     void rotRight(int steps)
     {
         int sgn = steps > 0 ? 1 : -1;
