@@ -52,16 +52,15 @@ int Chitons::solve() const
 {
     using Risk = uint16_t;
 
-    //vector<Index> openIndices;
-    //openIndices.reserve(m_cells.size());
-    using OpenCell = uint64_t;  // top 32bits are risk for cell, bottom 32 bits are index
-    priority_queue<OpenCell, vector<OpenCell>, greater<OpenCell>> openCells;
-    //vector<Index> openCells;
-    //openCells.reserve(m_cells.size());
-    vector<bool> isCellOpen(m_width * m_height, false);
-
     vector<Risk> minRisk(m_cells.size(), numeric_limits<Risk>::max());
     vector<Index> previousIx(m_cells.size(), 0);
+
+    auto compareTotalRisk = [&](Index lhs, Index rhs) -> bool
+    {
+        return minRisk[lhs] > minRisk[rhs];
+    };
+    priority_queue<Index, vector<Index>, decltype(compareTotalRisk)> openIndices(compareTotalRisk);
+    vector<bool> isCellOpen(m_width * m_height, false);
 
     auto tryVisitNeighbour = [&, this](Index currIx, int dx, int dy)
     {
@@ -85,8 +84,7 @@ int Chitons::solve() const
 
             if (!isCellOpen[newIx])
             {
-                OpenCell open = (OpenCell(localRisk) << 32) | newIx;
-                openCells.push(open);
+                openIndices.push(newIx);
                 isCellOpen[newIx] = true;
             }
         }
@@ -112,27 +110,25 @@ int Chitons::solve() const
     };
 
     // start at top-left (index 0)
-    openCells.push(0);
+    openIndices.push(0);
     isCellOpen[0] = true;
     minRisk[0] = 0;
 
     const Index targetIx = Index((m_width * m_height) - 1);
 
-    while (!openCells.empty())
+    while (!openIndices.empty())
     {
         // get the most interesting index out of the open list
-        //auto itCurr = ranges::min_element(openCells);
-        //Index curr = *itCurr;
-        Index curr = Index(openCells.top() & 0xffffffff);
+        Index curr = openIndices.top();
         if (curr == targetIx)
         {
-            //dumpPath(targetIx);
+            dumpPath(targetIx);
             return minRisk[targetIx];
         }
 
-        openCells.pop();
-        //openCells.erase(itCurr);
+        openIndices.pop();
         isCellOpen[curr] = false;
+
         tryVisitNeighbour(curr,  1, 0);
         tryVisitNeighbour(curr, -1, 0);
         tryVisitNeighbour(curr, 0,  1);
