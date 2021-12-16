@@ -181,4 +181,5 @@ CN -> C)";
 
     //test(-100, day14_2(READ(sample)));
     //gogogo(day14_2(LOAD(14)));
+    skip("i'm stumped for now");
 }

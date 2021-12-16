@@ -275,6 +275,7 @@ public:
         cout << m_name << " took " << duration_ns/1000 << "us" << endl;
     }
 };
+#define TIME_SCOPE(name)    ScopeTimer timer_##name(#name)
 
 
 // ----- day harness -----
