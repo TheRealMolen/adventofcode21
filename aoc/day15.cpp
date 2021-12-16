@@ -60,7 +60,7 @@ int Chitons::solve() const
         return minRisk[lhs] > minRisk[rhs];
     };
     priority_queue<Index, vector<Index>, decltype(compareTotalRisk)> openIndices(compareTotalRisk);
-    vector<bool> isCellOpen(m_width * m_height, false);
+    vector<uint8_t> isCellOpen(m_width * m_height, 0);
 
     auto tryVisitNeighbour = [&, this](Index currIx, int dx, int dy)
     {
@@ -122,7 +122,7 @@ int Chitons::solve() const
         Index curr = openIndices.top();
         if (curr == targetIx)
         {
-            dumpPath(targetIx);
+            //dumpPath(targetIx);
             return minRisk[targetIx];
         }
 
@@ -179,13 +179,8 @@ int day15(const stringlist& input)
 
 int day15_2(const stringlist& input)
 {
-    TIME_SCOPE(all);
     Chitons map(input);
-    {
-        TIME_SCOPE(embiggen);
-        map.embiggen(5);
-    }
-    TIME_SCOPE(solve);
+    map.embiggen(5);
     return map.solve();
 }
 
@@ -208,5 +203,5 @@ R"(1163751742
     gogogo(day15(LOAD(15)));
 
     test(315, day15_2(READ(sample)));
-    gogogo(day15_2(LOAD(15)));
+    nononoD(day15_2(LOAD(15)));
 }

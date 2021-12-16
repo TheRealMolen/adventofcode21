@@ -39,7 +39,7 @@ int main()
 
     cout << GARLAND(2) << "  advent of code 2021  ~~ TheRealMolen " << GARLAND(2) << endl;
 
-
+    
     run_day1();
     run_day2();
     run_day3();
