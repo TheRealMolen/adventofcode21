@@ -50,10 +50,16 @@ ostream& operator<<(ostream& os, const Chitons& map)
 
 int Chitons::solve() const
 {
-    vector<Index> openIndices;
-    openIndices.reserve(m_cells.size());
-
     using Risk = uint16_t;
+
+    //vector<Index> openIndices;
+    //openIndices.reserve(m_cells.size());
+    using OpenCell = uint64_t;  // top 32bits are risk for cell, bottom 32 bits are index
+    priority_queue<OpenCell, vector<OpenCell>, greater<OpenCell>> openCells;
+    //vector<Index> openCells;
+    //openCells.reserve(m_cells.size());
+    vector<bool> isCellOpen(m_width * m_height, false);
+
     vector<Risk> minRisk(m_cells.size(), numeric_limits<Risk>::max());
     vector<Index> previousIx(m_cells.size(), 0);
 
@@ -69,15 +75,20 @@ int Chitons::solve() const
             return;
         
         Index newIx = Index(x + y * m_width);
-        _ASSERT(minRisk[currIx] + m_cells[newIx] < numeric_limits<Risk>::max());
-        Risk newRisk = minRisk[currIx] + m_cells[newIx];
+        auto localRisk = m_cells[newIx];
+        _ASSERT(minRisk[currIx] + localRisk < numeric_limits<Risk>::max());
+        Risk newRisk = minRisk[currIx] + localRisk;
         if (newRisk < minRisk[newIx])
         {
             previousIx[newIx] = currIx;
             minRisk[newIx] = newRisk;
 
-            if (ranges::find(openIndices, newIx) == end(openIndices))
-                openIndices.push_back(newIx);
+            if (!isCellOpen[newIx])
+            {
+                OpenCell open = (OpenCell(localRisk) << 32) | newIx;
+                openCells.push(open);
+                isCellOpen[newIx] = true;
+            }
         }
     };
 
@@ -101,23 +112,27 @@ int Chitons::solve() const
     };
 
     // start at top-left (index 0)
-    openIndices.push_back(0);
+    openCells.push(0);
+    isCellOpen[0] = true;
     minRisk[0] = 0;
 
     const Index targetIx = Index((m_width * m_height) - 1);
 
-    while (!openIndices.empty())
+    while (!openCells.empty())
     {
         // get the most interesting index out of the open list
-        auto itCurr = ranges::min_element(openIndices, {}, [&](const Index ix) { return minRisk[ix]; });
-        Index curr = *itCurr;
+        //auto itCurr = ranges::min_element(openCells);
+        //Index curr = *itCurr;
+        Index curr = Index(openCells.top() & 0xffffffff);
         if (curr == targetIx)
         {
             //dumpPath(targetIx);
             return minRisk[targetIx];
         }
 
-        openIndices.erase(itCurr);
+        openCells.pop();
+        //openCells.erase(itCurr);
+        isCellOpen[curr] = false;
         tryVisitNeighbour(curr,  1, 0);
         tryVisitNeighbour(curr, -1, 0);
         tryVisitNeighbour(curr, 0,  1);
