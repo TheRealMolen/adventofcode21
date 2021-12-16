@@ -68,7 +68,7 @@ int day13_2(const stringlist& input)
             ++pval;
 
         auto foldLine = fold.second;
-        for (; pval < &points.back().y + 2; pval += 2)
+        for (; pval < &points.back().y + 1; pval += 2)
         {
             if (*pval > foldLine)
                 *pval = (2 * foldLine) - *pval;
