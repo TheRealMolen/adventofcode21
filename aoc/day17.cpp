@@ -7,31 +7,31 @@
 
 pair<bool,int> hitsTarget(const Pt2i& launchSpeed, const Pt2i& targetmin, const Pt2i& targetmax)
 {
-    auto distFromTarget = [&](const Pt2i & pos)
-    {
-        int nearestx = clamp(pos.x, targetmin.x, targetmax.x);
-        return abs(pos.x - nearestx);
-    };
-
     Pt2i speed = launchSpeed;
     Pt2i pos(0,0);
     int highesty = 0;
     
     Pt2i lastPos = pos;
-    int lastDist = distFromTarget(lastPos);
+    int lastDist = INT_MAX;
     for (;;)
     {
-        pos += speed;
-        highesty = max(pos.y, highesty);
+        pos.x += speed.x;
+        pos.y += speed.y;
+        if (pos.y > highesty)
+            highesty = pos.y;
 
         if ((pos.x >= targetmin.x) && (pos.y >= targetmin.y) &&
             (pos.x <= targetmax.x) && (pos.y <= targetmax.y))
         {
             return { true, highesty };
         }
+        if (pos.y < targetmin.y)
+            break;
 
-        int newDist = distFromTarget(pos);
-        if (newDist > lastDist || pos.y < targetmin.y)
+        int nearestx = pos.x < targetmin.x ? targetmin.x : (pos.x > targetmax.x ? targetmax.x : pos.x);
+        int distx = pos.x - nearestx;
+        int newDist = distx >= 0 ? distx : -distx;
+        if (newDist > lastDist)
             break;
         lastPos = pos;
         lastDist = newDist;
