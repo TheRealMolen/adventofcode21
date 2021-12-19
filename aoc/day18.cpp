@@ -8,21 +8,51 @@ string reparen(const string& in)
     replace(begin(n), end(n), ']', ')');
     return n;
 }
+void reparen(char* s)
+{
+    for (char* c = s; *c; ++c)
+    {
+        if (*c == '[')
+            *c = '(';
+        else if (*c == ']')
+            *c = ')';
+    }
+}
+void deparen(char* s)
+{
+    for (char* c = s; *c; ++c)
+    {
+        if (*c == '(')
+            *c = '[';
+        else if (*c == ')')
+            *c = ']';
+    }
+}
 
-inline bool isRegular(char c)
+__forceinline bool isRegular(char c)
 {
     return c >= '0';
 }
-inline bool isOversize(char c)
+__forceinline bool isOversize(char c)
 {
     return c > '9';
 }
 
 char* findRegular(char* c)
 {
-    for ( ; *c; ++c)
+    for (; *c; ++c)
     {
         if (isRegular(*c))
+            return c;
+    }
+    return nullptr;
+}
+
+char* findOversize(char* c)
+{
+    for (; *c; ++c)
+    {
+        if (isOversize(*c))
             return c;
     }
     return nullptr;
@@ -31,14 +61,15 @@ char* findRegular(char* c)
 bool tryExplode(string& n)
 {
     int nesting = 0;
+    char* buf = n.data();
     char* prevDigit = nullptr;
-    for (char* it = n.data(); *it; ++it)
+    for (char* it = buf; *it; ++it)
     {
         if (*it == '(')
             ++nesting;
         else if (*it == ')')
             --nesting;
-        else if (isRegular(*it))
+        else if (*it >= '0')
         {
             if (nesting > 4 && (*(it+1) == ',') && isRegular(*(it+2)))
             {
@@ -50,18 +81,16 @@ bool tryExplode(string& n)
                 {
                     // add first digit to prev digit
                     *prevDigit += (*first - '0');
-                    _ASSERT(isRegular(*prevDigit));
                 }
                 auto nextDigit = findRegular(endOfPair);
                 if (nextDigit)
                 {
                     *nextDigit += (*second - '0');
-                    _ASSERT(isRegular(*nextDigit));
                 }
 
                 // replace the whole pair with "0"
                 *(startOfPair-1) = '0';
-                n.erase(distance(n.data(), first), (endOfPair+1) - first);
+                n.erase(distance(buf, first), (endOfPair+1) - first);
                 return true;
             }
             else
@@ -75,19 +104,17 @@ bool tryExplode(string& n)
 
 bool trySplit(string& n)
 {
-    auto it = find_if(begin(n), end(n), isOversize);
-    if (it == end(n))
+    char* it = findOversize(n.data());
+    if (!it)
         return false;
 
     int val = *it - '0';
     int left = val / 2;
     int right = val - left;
-    string p("(l,r)");
-    p.data()[1] = char(left + '0');
-    p.data()[3] = char(right + '0');
+    char p[] = { char(left + '0'), ',', char(right + '0'), ')', 0 };
 
-    n.erase(it);
-    n.insert(it, begin(p), end(p));
+    *it = '(';
+    n.insert(distance(n.data(), it+1), p);
     return true;
 }
 
@@ -95,18 +122,19 @@ string testExplode(const string& in)
 {
     string s = reparen(in);
     tryExplode(s);
-
-    replace(begin(s), end(s), '(', '[');
-    replace(begin(s), end(s), ')', ']');
+    deparen(s.data());
     return s;
 }
 
 string snailAdd(const string& l, const string& r)
 {
     string res("[");
-    res += l + "," + r + "]";
-    replace(begin(res), end(res), '[', '(');
-    replace(begin(res), end(res), ']', ')');
+    res.reserve(4000);
+    res.append(l);
+    res.append(",");
+    res.append(r);
+    res.append("]");
+    reparen(res.data());
 
     for (;;)
     {
@@ -117,15 +145,15 @@ string snailAdd(const string& l, const string& r)
         break;
     }
 
-    replace(begin(res), end(res), '(', '[');
-    replace(begin(res), end(res), ')', ']');
-
+    deparen(res.data());
     return res;
 }
 
 string addLines(const stringlist& input)
 {
-    string acc = input.front();
+    string acc;
+    acc.reserve(4000);
+    acc = input.front();
     for (auto it = begin(input) + 1; it != end(input); ++it)
     {
         acc = snailAdd(acc, *it);

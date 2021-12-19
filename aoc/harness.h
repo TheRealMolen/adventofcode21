@@ -11,8 +11,6 @@
 #include <wincon.h>
 
 
-
-
 // --- how to use the harness ---
 //
 //test(3, day1(READ("+1\n-2\n+3\n+1")));
