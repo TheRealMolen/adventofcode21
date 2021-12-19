@@ -10,9 +10,6 @@ pair<bool,int> hitsTarget(const Pt2i& launchSpeed, const Pt2i& targetmin, const 
     Pt2i speed = launchSpeed;
     Pt2i pos(0,0);
     int highesty = 0;
-    
-    Pt2i lastPos = pos;
-    int lastDist = INT_MAX;
     for (;;)
     {
         pos.x += speed.x;
@@ -20,21 +17,14 @@ pair<bool,int> hitsTarget(const Pt2i& launchSpeed, const Pt2i& targetmin, const 
         if (pos.y > highesty)
             highesty = pos.y;
 
-        if ((pos.x >= targetmin.x) && (pos.y >= targetmin.y) &&
-            (pos.x <= targetmax.x) && (pos.y <= targetmax.y))
+        if (pos.x > targetmax.x)
+            break;
+        if ((pos.x >= targetmin.x) && (pos.y >= targetmin.y) && (pos.y <= targetmax.y))
         {
             return { true, highesty };
         }
         if (pos.y < targetmin.y)
             break;
-
-        int nearestx = pos.x < targetmin.x ? targetmin.x : (pos.x > targetmax.x ? targetmax.x : pos.x);
-        int distx = pos.x - nearestx;
-        int newDist = distx >= 0 ? distx : -distx;
-        if (newDist > lastDist)
-            break;
-        lastPos = pos;
-        lastDist = newDist;
 
         if (speed.x != 0)
             speed.x -= (speed.x / abs(speed.x));
@@ -126,8 +116,8 @@ void run_day17()
     test(true, hitsTarget({ 6,9 }, sample).first);
     test(45, hitsTarget({ 6,9 }, sample).second);
     test(45, day17(sample));
-    gogogo(day17(LOADSTR(17)));
+    gogogo(day17(LOADSTR(17)), 2775);
 
     test(112, day17_2(sample));
-    gogogo(day17_2(LOADSTR(17)));
+    gogogo(day17_2(LOADSTR(17)), 1566);
 }
