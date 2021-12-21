@@ -41,8 +41,8 @@ int64_t day21(const stringlist& input)
 
 struct DiracPlayer
 {
-    int pos;
-    int score;
+    int8_t pos;
+    int8_t score;
 };
 
 struct DiracState
@@ -56,7 +56,7 @@ struct DiracState
         players[1 - turn] = prev.players[1 - turn];
 
         const DiracPlayer& prevPlayer = prev.players[turn];
-        int newPos = prevPlayer.pos + roll;
+        int8_t newPos = int8_t(prevPlayer.pos + roll);
         if (newPos > 10)
             newPos -= 10;
 
@@ -74,7 +74,7 @@ pair<int64_t,int64_t> day21_2(const stringlist& input)
     auto& state = states.emplace_back();
     for (int i = 0; i < nPlayers; ++i)
     {
-        state.players[i].pos = atoi(strrchr(input[i].c_str(), ' ') + 1);
+        state.players[i].pos = (int8_t)atoi(strrchr(input[i].c_str(), ' ') + 1);
         state.players[i].score = 0;
     }
 
@@ -113,8 +113,10 @@ Player 2 starting position: 8)";
     test(739785, day21(READ(sample)));
     gogogo(day21(LOAD(21)));
 
+#ifndef _DEBUG
     auto d2p2results = day21_2(READ(sample));
     test(444356092776315ll, d2p2results.first);
     test(341960390180808ll, d2p2results.second);
-    gogogo(day21_2(LOAD(21)).first);
+#endif
+    nononoD(day21_2(LOAD(21)).first);
 }
