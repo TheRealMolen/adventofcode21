@@ -1,12 +1,32 @@
 #include "pch.h"
 #include "harness.h"
 
+#undef small
+
 struct Pt3i
 {
     int x, y, z;
 
     auto operator<=>(const Pt3i&) const = default;
+
+    Pt3i& operator+=(int t)
+    {
+        x += t;
+        y += t;
+        z += t;
+        return *this;
+    }
 };
+
+Pt3i minByEl(const Pt3i& a, const Pt3i& b)
+{
+    return { min(a.x, b.x), min(a.y, b.y), min(a.z, b.z) };
+}
+Pt3i maxByEl(const Pt3i& a, const Pt3i& b)
+{
+    return { max(a.x, b.x), max(a.y, b.y), max(a.z, b.z) };
+}
+
 
 struct Cube
 {
@@ -14,26 +34,35 @@ struct Cube
 
     auto operator<=>(const Cube&) const = default;
 
-    void grow(const Cube& o)
-    {
-        lo.x = min(lo.x, o.lo.x);
-        lo.y = min(lo.y, o.lo.y);
-        lo.z = min(lo.z, o.lo.z);
-        hi.x = max(hi.x, o.hi.x);
-        hi.y = max(hi.y, o.hi.y);
-        hi.z = max(hi.z, o.hi.z);
-    }
+    Cube() = default;
+    Cube(const Pt3i & l, const Pt3i & h) : lo(l), hi(h) { /**/ }
+    Cube(int l, int h) : lo{l,l,l}, hi{h,h,h} { /**/ }
 
     bool isDistinct(const Cube& o) const
     {
-        if ((lo.x > o.hi.x) || (hi.x < o.lo.x) ||
-            (lo.y > o.hi.y) || (hi.y < o.lo.y) ||
-            (lo.z > o.hi.z) || (hi.z < o.lo.z))
+        if ((lo.x >= o.hi.x) || (hi.x <= o.lo.x) ||
+            (lo.y >= o.hi.y) || (hi.y <= o.lo.y) ||
+            (lo.z >= o.hi.z) || (hi.z <= o.lo.z))
         {
             return true;
         }
 
         return false;
+    }
+
+    Cube intersectWith(const Cube& o) const
+    {
+        _ASSERT(!isDistinct(o));
+        return { maxByEl(lo, o.lo), minByEl(hi, o.hi) };
+    }
+
+    int64_t volume() const
+    {
+        int64_t dx = hi.x - lo.x;
+        int64_t dy = hi.y - lo.y;
+        int64_t dz = hi.z - lo.z;
+
+        return (dx * dy * dz);
     }
 };
 
@@ -63,31 +92,50 @@ struct Engine
         memset(data(cells), 0, sizeof cells);
     }
 
-    void switchCells(bool on, Pt3i& lo, Pt3i& hi);
+    void switchCells(bool on, Pt3i lo, Pt3i hi);
+
+    void diff(const Engine& o) const;
 
     int count() const { return accumulate(begin(cells), end(cells), 0); }
 };
 
 
-void Engine::switchCells(bool on, Pt3i& lo, Pt3i& hi)
+void Engine::switchCells(bool on, Pt3i lo, Pt3i hi)
 {
-    if (hi.x < Min || hi.y < Min || hi.z < Min || lo.x > Max || lo.y > Max || lo.z > Max)
+    if (hi.x < Min || hi.y < Min || hi.z < Min || lo.x > Max+1 || lo.y > Max+1 || lo.z > Max+1)
         return;
 
-    hi.x = min<int>(Max, hi.x);
-    hi.y = min<int>(Max, hi.y);
-    hi.z = min<int>(Max, hi.z);
+    hi.x = min<int>(Max+1, hi.x);
+    hi.y = min<int>(Max+1, hi.y);
+    hi.z = min<int>(Max+1, hi.z);
     lo.x = max<int>(Min, lo.x);
     lo.y = max<int>(Min, lo.y);
     lo.z = max<int>(Min, lo.z);
 
     auto buf = data(cells);
-    for (int z = lo.z - Min; z <= hi.z - Min; ++z)
+    for (int z = lo.z - Min; z < hi.z - Min; ++z)
     {
-        for (int y = lo.y - Min; y <= hi.y - Min; ++y)
+        for (int y = lo.y - Min; y < hi.y - Min; ++y)
         {
             auto row = &buf[(y*Size) + (z*Size*Size)];
-            fill(row + lo.x - Min, row + hi.x + 1 - Min, on);
+            fill(row + lo.x - Min, row + hi.x - Min, on);
+        }
+    }
+}
+
+void Engine::diff(const Engine& otherEngine) const
+{
+    const Cell* us = data(cells);
+    const Cell* them = data(otherEngine.cells);
+    for (int z=Min; z<=Max; ++z)
+    {
+        for (int y=Min; y<=Max; ++y)
+        {
+            for (int x=Min; x<=Max; ++x, ++us, ++them)
+            {
+                if (*us != *them)
+                    cout << "  diff @ " << x << ", " << y << ", " << z << " -- old was " << (*them ? "ON" : "off") << "\n";
+            }
         }
     }
 }
@@ -111,6 +159,8 @@ EngineOp parseLine(const string& line)
     auto& c = op.c;
     is >> "x=" >> c.lo.x >> ".." >> c.hi.x >> ",y=" >> c.lo.y >> ".." >> c.hi.y >> ",z=" >> c.lo.z >> ".." >> c.hi.z;
 
+    c.hi += 1;
+
     return op;
 }
 
@@ -128,37 +178,163 @@ int day22(const stringlist& input)
     return engine->count();
 }
 
-struct Island
-{
-    Cube extents;
-    vector<EngineOp> ops;
-};
 
+
+void addRemainderOfIsxnWith(const Cube& toBeChopped, const Cube& toChopWith, vector<Cube>& cubes)
+{
+    Cube isxn = toBeChopped.intersectWith(toChopWith);
+    Cube remain{ toBeChopped };
+
+    // split low side of x
+    if (isxn.lo.x > remain.lo.x)
+    {
+        cubes.emplace_back(remain.lo, Pt3i{ isxn.lo.x, remain.hi.y, remain.hi.z });
+        remain.lo.x = isxn.lo.x;
+    }
+    // split high side of x
+    if (isxn.hi.x < remain.hi.x)
+    {
+        cubes.emplace_back(Pt3i{ isxn.hi.x, remain.lo.y, remain.lo.z }, remain.hi);
+        remain.hi.x = isxn.hi.x;
+    }
+
+    // split low side of y
+    if (isxn.lo.y > remain.lo.y)
+    {
+        cubes.emplace_back(remain.lo, Pt3i{ remain.hi.x, isxn.lo.y, remain.hi.z });
+        remain.lo.y = isxn.lo.y;
+    }
+    // split high side of y
+    if (isxn.hi.y < remain.hi.y)
+    {
+        cubes.emplace_back(Pt3i{ remain.lo.x, isxn.hi.y, remain.lo.z }, remain.hi);
+        remain.hi.y = isxn.hi.y;
+    }
+
+    // split low side of z
+    if (isxn.lo.z > remain.lo.z)
+    {
+        cubes.emplace_back(remain.lo, Pt3i{ remain.hi.x, remain.hi.y, isxn.lo.z });
+        remain.lo.z = isxn.lo.z;
+    }
+    // split high side of z
+    if (isxn.hi.z < remain.hi.z)
+    {
+        cubes.emplace_back(Pt3i{ remain.lo.x, remain.lo.y, isxn.hi.z }, remain.hi);
+        remain.hi.z = isxn.hi.z;
+    }
+
+    _ASSERT(remain == isxn);
+}
+
+
+static const Cube InnerCube{{-50,-50,-50},{51,51,51}};
+
+template<bool ClipToInner = true>
 int64_t day22_2(const stringlist& input)
 {
-    vector<EngineOp> ops;
-    ops.reserve(input.size());
-    ranges::transform(input, back_inserter(ops), parseLine);
-    ranges::sort(ops);
+    vector<Cube> regions;
+    regions.reserve(input.size());
 
-    vector<Island> islands;
-    Island island { ops.front().c };
-    for (const auto& op : ops)
+    vector<Cube> toAdd;
+    for (const string& line : input)
     {
-        if (op.c.isDistinct(island.extents))
+        auto op = parseLine(line);
+
+        if constexpr (ClipToInner)
         {
-            islands.push_back(island);
-            island = { op.c, {op} };
+            if (!op.c.isDistinct(InnerCube))
+                op.c = op.c.intersectWith(InnerCube);
+            else
+                continue;
+        }
+
+        if (op.on)
+        {
+            toAdd.push_back(op.c);
+
+            while (!toAdd.empty())
+            {
+                Cube c = toAdd.back();
+                toAdd.pop_back();
+
+                bool decomposed = false;
+                for (Cube& o : regions)
+                {
+                    if (!c.isDistinct(o))
+                    {
+                        addRemainderOfIsxnWith(c, o, toAdd);
+                        decomposed = true;
+                        break;
+                    }
+                }
+
+                if (!decomposed)
+                    regions.push_back(c);
+            }
         }
         else
         {
-            island.extents.grow(op.c);
-            island.ops.push_back(op);
+            bool decomposed;
+            do
+            {
+                decomposed = false;
+                for (auto itC = begin(regions); itC != end(regions); )
+                {
+                    if (!op.c.isDistinct(*itC))
+                    {
+                        Cube c = *itC;
+                        itC = regions.erase(itC);
+                        addRemainderOfIsxnWith(c, op.c, toAdd);
+                        decomposed = true;
+                        break;
+                    }
+                    else
+                        ++itC;
+                }
+            } while (decomposed);
+
+            ranges::copy(toAdd, back_inserter(regions));
+            toAdd.clear();
         }
     }
-    islands.push_back(island);
 
-    return -1;
+
+    //auto oldEngine = make_unique<Engine>();
+    //for (auto& line : input)
+    //{
+    //    auto op = parseLine(line);
+    //    oldEngine->switchCells(op.on, op.c.lo, op.c.hi); // NB. modifies lo & hi
+    //}
+    //auto newEngine = make_unique<Engine>();
+    //for (const Cube& c : regions)
+    //    newEngine->switchCells(true, c.lo, c.hi);
+
+    //newEngine->diff(*oldEngine);
+
+
+    //cout << "------- remaining regions -------\n";
+    //ranges::sort(regions);
+    //for (const Cube& c : regions)
+    //    cout << "  x=" << c.lo.x << ".." << c.hi.x << "\ty=" << c.lo.y << ".." << c.hi.y << "\tz=" << c.lo.z << ".." << c.hi.z << "\n";
+    //cout << endl;
+
+    int64_t total = 0;
+    for (const Cube& c : regions)
+        total += c.volume();
+
+    return total;
+}
+
+int checkDust(const Cube& big, const Cube& small)
+{
+    vector<Cube> dust;
+    addRemainderOfIsxnWith(big, small, dust);
+
+    int64_t dustVol = accumulate(begin(dust), end(dust), 0ll, [](int64_t acc, const Cube& c) { return acc + c.volume(); });
+    _ASSERT(dustVol + small.volume() == big.volume());
+
+    return int(dust.size());
 }
 
 
@@ -261,6 +437,13 @@ off x=-93533..-4276,y=-16170..68771,z=-104985..-24507)";
     test(474140, day22(READ(sample3)));
     gogogo(day22(LOAD(22)));
 
-    test(2758514936282235ll, day22_2(READ(sample3)));
-    //gogogo(day22_2(LOAD(22)));
+    test(0, checkDust({ {-10},{10} }, { {-10},{10} }));
+    test(3, checkDust({ {-10},{10} }, { {0},{10} }));
+    test(6, checkDust({ {-10},{10} }, { {-1},{1} }));
+
+    test(39ll, day22_2(READ(sample)));
+    test(590784, day22_2(READ(sample2)));
+    //cout.imbue(locale(""));
+    test(2758514936282235ll, day22_2<false>(READ(sample3)));
+    gogogo(day22_2<false>(LOAD(22)));
 }
