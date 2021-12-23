@@ -167,5 +167,11 @@
     <Text Include="data\day22.txt">
       <Filter>data</Filter>
     </Text>
+    <Text Include="data\day22t3.txt">
+      <Filter>data</Filter>
+    </Text>
+    <Text Include="data\day22t2.txt">
+      <Filter>data</Filter>
+    </Text>
   </ItemGroup>
 </Project>
