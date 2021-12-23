@@ -227,7 +227,6 @@ on x=10..10,y=10..10,z=10..10)";
     gogogo(day22(LOAD(22)));
 
     test(39ll, day22<false>(READ(sample)));
-    test(590784, day22<true>(sample2));
     test(2758514936282235ll, day22<false>(sample3));
     gogogo(day22<false>(LOAD(22)));
 }
