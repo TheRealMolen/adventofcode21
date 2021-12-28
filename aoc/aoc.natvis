@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <!-- day23 -->
+  <Type Name="Open">
+    <DisplayString Condition="amph == 0">{{ unused }}</DisplayString>
+    <DisplayString Condition="inroom == 0">{{ {amph} in HALL, {(int)space} }}</DisplayString>
+    <DisplayString>{{ {amph} in ROOM {(int)room}, {(int)space} }}</DisplayString>
+  </Type>
+</AutoVisualizer>

@@ -34,6 +34,7 @@
     <ClCompile Include="day20.cpp" />
     <ClCompile Include="day21.cpp" />
     <ClCompile Include="day22.cpp" />
+    <ClCompile Include="day23.cpp" />
     <ClCompile Include="day3.cpp" />
     <ClCompile Include="day4.cpp" />
     <ClCompile Include="day5.cpp" />
@@ -82,6 +83,9 @@
     <Text Include="data\day7.txt" />
     <Text Include="data\day8.txt" />
     <Text Include="data\day9.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="aoc.natvis" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

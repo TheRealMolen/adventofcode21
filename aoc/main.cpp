@@ -62,6 +62,7 @@ int main()
     run_day20();
     run_day21();
     run_day22();
+    run_day23();
 
 
     // animate snow falling behind the characters in the console until someone presses a key

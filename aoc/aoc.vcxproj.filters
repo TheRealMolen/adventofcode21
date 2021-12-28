@@ -88,6 +88,9 @@
     <ClCompile Include="day22.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="day23.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="harness.h">
@@ -173,5 +176,10 @@
     <Text Include="data\day22t2.txt">
       <Filter>data</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="aoc.natvis">
+      <Filter>Source Files</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>
