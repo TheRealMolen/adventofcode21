@@ -8,6 +8,9 @@
     <Filter Include="data">
       <UniqueIdentifier>{71200bbd-7f1a-47be-a985-22f26102f489}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Doc">
+      <UniqueIdentifier>{eb12b59c-75c9-455f-86ab-8fe06b8e1f83}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="harness.cpp">
@@ -89,6 +92,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="day23.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="day24.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -178,6 +184,12 @@
     </Text>
     <Text Include="data\day23.txt">
       <Filter>data</Filter>
+    </Text>
+    <Text Include="data\day24.txt">
+      <Filter>data</Filter>
+    </Text>
+    <Text Include="day24.alu.txt">
+      <Filter>Doc</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>

@@ -1,0 +1,252 @@
+inp w		w = in[0]
+mul x 0		x = 0
+add x z		x = 0
+mod x 26	x = 0
+div z 1		z = 0
+add x 14	x = 14
+eql x w		x = 0
+eql x 0		x = 1
+mul y 0		y = 0
+add y 25	y = 25
+mul y x		y = 25
+add y 1		y = 26
+mul z y		z = 0
+mul y 0		y = 0
+add y w		y = in[0]
+add y 7		y = in[0] + 7
+mul y x		y = in[0] + 7
+add z y		z = in[0] + 7
+inp w		w = in[1]
+mul x 0     x = 0
+add x z     x = in[0] + 7
+mod x 26    x = (in[0] + 7) % 26
+div z 1
+add x 12    x = ((in[0] + 7) % 26) + 12
+eql x w     x = 0       // x > 12
+eql x 0     x = 1
+mul y 0     y = 0
+add y 25    y = 25
+mul y x     y = 25
+add y 1     y = 26
+mul z y     z = (in[0] + 7) * 26
+mul y 0
+add y w     y = in[1]
+add y 4     y = in[1] + 4
+mul y x     
+add z y     z = ((in[0] + 7) * 26) + in[1] + 4
+inp w		w = in[2]
+mul x 0
+add x z     
+mod x 26    x = in[1] + 4
+div z 1
+add x 11    x = in[1] + 15
+eql x w     x = 0
+eql x 0     x = 1
+mul y 0
+add y 25    y = 25
+mul y x
+add y 1     y = 26
+mul z y     z = (((in[0] + 7) * 26) + in[1] + 4) * 26
+mul y 0
+add y w     y = in[2]
+add y 8     y = in[2] + 8
+mul y x     y = in[2] + 8
+add z y     z = ((((in[0] + 7) * 26) + in[1] + 4) * 26) + in[2] + 8
+inp w		w = in[3]
+mul x 0
+add x z 
+mod x 26    x = in[2] + 8
+div z 26    z = ((in[0] + 7) * 26) + in[1] + 4
+add x -4    x = in[2] + 4
+eql x w     x = (in[2] + 4) == in[3]
+eql x 0     x = (in[2] + 4) != in[3]
+mul y 0
+add y 25
+mul y x
+add y 1     y = ((in[2] + 4) != in[3]) ? 26 : 1
+mul z y     z = (((in[0] + 7) * 26) + in[1] + 4) * (((in[2] + 4) != in[3]) ? 26 : 1)
+mul y 0
+add y w     y = in[3]
+add y 1     y = in[3] + 1
+mul y x     y = (in[3] + 1) * ((in[2] + 4) != in[3])
+add z y     z = ((((in[0] + 7) * 26) + in[1] + 4) * (((in[2] + 4) != in[3]) ? 26 : 1)) + (in[3] + 1) * ((in[2] + 4) != in[3])
+inp w		w = in[4]
+mul x 0
+add x z
+mod x 26
+div z 1
+add x 10
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 5
+mul y x
+add z y
+inp w		w = in[5]
+mul x 0
+add x z
+mod x 26
+div z 1
+add x 10
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 14
+mul y x
+add z y		z = z_part5 = (z_part4 * 26) + in[5] + 14
+inp w		w = in[6]
+mul x 0
+add x z
+mod x 26	x = in[5] + 14
+div z 1
+add x 15	x = in[5] + 29
+eql x w		x = 0
+eql x 0		x = 1
+mul y 0
+add y 25
+mul y x
+add y 1		y = 26
+mul z y		z = ((z_part4 * 26) + in[5] + 14) * 26
+mul y 0
+add y w		y = in[6]
+add y 12	y = in[6] + 12
+mul y x
+add z y		z = (((z_part4 * 26) + in[5] + 14) * 26) + in[6] + 12
+inp w		w = in[7]
+mul x 0
+add x z
+mod x 26	x = in[6] + 12
+div z 26	z = (z_part4 * 26) + in[5] + 14
+add x -9	x = in[6] + 3
+eql x w		x = (in[6] + 3) == in[7]
+eql x 0		x = (in[6] + 3) != in[7]
+mul y 0
+add y 25
+mul y x
+add y 1		y = ((in[6] + 3) != in[7]) ? 26 : 1
+mul z y		z = ((z_part4 * 26) + in[5] + 14) * (((in[6] + 3) != in[7]) ? 26 : 1)
+mul y 0
+add y w
+add y 10	y = in[7] + 10
+mul y x		y = (in[7] + 10) * ((in[6] + 3) != in[7])
+add z y		z = z_part7 = (((z_part4 * 26) + in[5] + 14) * (((in[6] + 3) != in[7]) ? 26 : 1)) + ((in[7] + 10) * ((in[6] + 3) != in[7]))
+inp w		w = in[8]
+mul x 0
+add x z
+mod x 26	x = z_part7 % 26
+div z 26	z = z_part7 / 26
+add x -9	x = (z_part7 % 26) - 9
+eql x w		x = (in[8] == ((z_part7 % 26) - 9))
+eql x 0		x = (in[8] != ((z_part7 % 26) - 9))
+mul y 0
+add y 25
+mul y x
+add y 1		y = ((in[8] != ((z_part7 % 26) - 9)) ? 26 : 1)
+mul z y		z = (z_part7 / 26) * ((in[8] != ((z_part7 % 26) - 9)) ? 26 : 1)
+mul y 0
+add y w		y = in[8]
+add y 5		y = in[8] + 5
+mul y x		y = (in[8] + 5) * (in[8] != ((z_part7 % 26) - 9))
+add z y		z = z_part8 = ((z_part7 / 26) * ((in[8] != ((z_part7 % 26) - 9)) ? 26 : 1)) + ((in[8] + 5) * (in[8] != ((z_part7 % 26) - 9)))
+inp w		w = in[9]
+mul x 0
+add x z
+mod x 26	x = z_part8 % 26
+div z 1
+add x 12	x = (z_part8 % 26) + 12
+eql x w		x = 0
+eql x 0		x = 1
+mul y 0
+add y 25
+mul y x
+add y 1		y = 26
+mul z y		z = z_part8 * 26
+mul y 0
+add y w		y = in[9]
+add y 7		y = in[9] + 7
+mul y x
+add z y		z = (z_part8 * 26) + in[9] + 7
+inp w		w = in[10]
+mul x 0
+add x z
+mod x 26	x = in[9] + 7
+div z 26	z = z_part8
+add x -15	x = in[9] - 8
+eql x w		x = (in[9] - 8) == in[10]
+eql x 0		x = (in[9] - 8) != in[10]
+mul y 0
+add y 25
+mul y x
+add y 1		y = ((in[9] - 8) != in[10]) ? 26 : 1
+mul z y		z = z_part8 * (((in[9] - 8) != in[10]) ? 26 : 1)
+mul y 0
+add y w		y = in[10]
+add y 6		y = in[10] + 6
+mul y x		y = (in[10] + 6) * ((in[9] - 8) != in[10])
+add z y		z = z_part9 = z_part8 * (((in[9] - 8) != in[10]) ? 26 : 1) + (in[10] + 6) * ((in[9] - 8) != in[10])
+inp w		w = in[11]
+mul x 0
+add x z		
+mod x 26	x = z_part9 % 26
+div z 26	z = z_part9 / 26
+add x -7	x = (z_part9 % 26) - 7
+eql x w		x = ((z_part9 % 26) - 7) == in[11]
+eql x 0		x = ((z_part9 % 26) - 7) != in[11]
+mul y 0
+add y 25
+mul y x
+add y 1		y = (((z_part9 % 26) - 7) != in[11]) ? 26 : 1
+mul z y		z = (z_part9 / 26) * ((((z_part9 % 26) - 7) != in[11]) ? 26 : 1)
+mul y 0
+add y w		y = in[11]
+add y 8		y = in[11] + 8
+mul y x		y = (in[11] + 8) * (((z_part9 % 26) - 7) != in[11])
+add z y		z = (z_part9 / 26) * ((((z_part9 % 26) - 7) != in[11]) ? 26 : 1) + (in[11] + 8) * (((z_part9 % 26) - 7) != in[11])
+inp w		w = in[12]
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -10
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 4
+mul y x
+add z y
+inp w		w = in[13]
+mul x 0
+add x z
+mod x 26
+div z 26
+add x 0
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 6
+mul y x
+add z y

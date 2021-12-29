@@ -35,6 +35,7 @@
     <ClCompile Include="day21.cpp" />
     <ClCompile Include="day22.cpp" />
     <ClCompile Include="day23.cpp" />
+    <ClCompile Include="day24.cpp" />
     <ClCompile Include="day3.cpp" />
     <ClCompile Include="day4.cpp" />
     <ClCompile Include="day5.cpp" />
@@ -77,6 +78,7 @@
     <Text Include="data\day22t2.txt" />
     <Text Include="data\day22t3.txt" />
     <Text Include="data\day23.txt" />
+    <Text Include="data\day24.txt" />
     <Text Include="data\day3.txt" />
     <Text Include="data\day4.txt" />
     <Text Include="data\day5.txt" />
@@ -84,6 +86,7 @@
     <Text Include="data\day7.txt" />
     <Text Include="data\day8.txt" />
     <Text Include="data\day9.txt" />
+    <Text Include="day24.alu.txt" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="aoc.natvis" />

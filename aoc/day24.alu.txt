@@ -1,0 +1,37 @@
+
+z_part1 = (((in[0] + 7) * 26) + in[1] + 4)
+
+in23valid = (in[3] != (((in[2] + 8) % 26) - 4))
+y_part2 = in23valid ? 26 : 1
+z_part2 = z_part1 * (in23valid ? 26 : 1)
+
+z_part3 = z_part2 + ((in[3] + 1) * in23valid)
+z_part4 = (z_part3 * 26) + (in[4] + 5)
+
+z_part5 = (z_part4 * 26) + in[5] + 14
+
+in67valid = (in[6] + 3) != in[7];
+y_part6 = in67valid ? 26 : 1;
+z_part6 = z_part5 * (in67valid ? 26 : 1);
+
+z_part7 = z_part6 + ((in[7] + 10) * in67valid);
+
+in8valid = ((z_part7 % 26) - 9) != in[8];
+z_part8 = ((z_part7 / 26) * (in8valid ? 26 : 1)) + ((in[8] + 5) * in8valid);
+
+in910valid = (in[9] - 8) != in[10];
+z_part9 = (z_part8 * (in910valid ? 26 : 1)) + ((in[10] + 6) * in910valid);
+
+in11valid = ((z_part9 % 26) - 7 ) != in[11];
+z_part10 = ((z_part9 / 26) + (in[11] + 8)) * (in11valid ? 26 : 1);
+
+in12valid = ((z_part10 % 26) - 10) != in[12];
+z_part11 = ((z_part10 / 26) * (in12valid ? 26 : 1)) + ((in[12] + 4) * in12valid);
+
+in13valid = (z_part11 % 26) != in[13];
+z_final = ((z_part11 / 26) * (in13valid ? 26 : 1)) + ((in[13] + 6) * in13valid);
+
+inp w       ; w = in[13]
+eql x 0     ; x = in13valid
+mul y x     ; y = (in[13] + 6) * in13valid
+add z y     ; z = ((z_part11 / 26) * (in13valid ? 26 : 1)) + ((in[13] + 6) * in13valid)
