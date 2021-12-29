@@ -1,194 +1,65 @@
 #include "pch.h"
 #include "harness.h"
 
-#define UPR(c)    (c & ~0x20)
-#define LWR(c)    (c | 0x20)
-#define ISLWR(c)  ((c & 0x20) != 0)
+#define AS_AWAY(c)    (c & ~0x20)
+#define AS_HOME(c)    (c | 0x20)
+#define IS_HOME(c)  ((c) >= 'a' && (c) <= 'd')
+#define IS_AWAY(c)  ((c) >= 'A' && (c) <= 'D')
+
+#define ROOMIX_TO_POS(ix)   ((ix) * 2 + 2)
+
+static constexpr unsigned HallSize = 11;
+
 
 struct Room
 {
     char spaces[2];
-    char type;
+    //char type;
+    //uint8_t pos;
 };
-
-bool canMoveInto(char amph, const Room& r)
-{
-    if (r.type != amph)
-        return false;
-
-    if (r.spaces[0] != '_' && UPR(r.spaces[0]) != amph)
-        return false;
-    if (r.spaces[1] != '_' && UPR(r.spaces[1]) != amph)
-        return false;
-
-    return true;
-}
-
-int64_t moveInto(char amph, Room& r)
-{
-    if (r.spaces[1] == '_')
-    {
-        r.spaces[1] = LWR(amph);
-        return 2;
-    }
-
-    if (r.spaces[0] == '_')
-    {
-        r.spaces[0] = LWR(amph);
-        return 1;
-    }
-
-    _ASSERT(false);
-    return INT_MAX;
-}
 
 struct Hall
 {
-    char spaces[12];
+    char spaces[HallSize + 1];
+    uint8_t awayRemaining = 8;
     Room rooms[4];
+    const Hall* prev = nullptr;
 
     Hall(const stringlist& input)
     {
-        ranges::fill(spaces, '_');
+        strcpy_s(spaces, "..!.!.!.!..");
         spaces[11] = 0;
         for (int i=0; i<4; ++i)
         {
             auto& r = rooms[i];
-            r.type = char('A' + i);
+            auto type = char('A' + i);
+           // r.type = char('A' + i);
+           // r.pos = 2 + i*2;
             r.spaces[0] = input[2][3 + 2 * i];
             r.spaces[1] = input[3][3 + 2 * i];
 
-            if (r.spaces[1] == r.type)
+            if (r.spaces[1] == type)
             {
-                r.spaces[1] = LWR(r.type);
-                if (r.spaces[0] == r.type)
-                    r.spaces[0] = LWR(r.type);
-            }
-        }
-    }
-};
-
-
-struct Place
-{
-    uint8_t inroom : 1; // if false, it's in the hall
-    uint8_t room : 2;
-    uint8_t space : 4;
-};
-
-struct Open
-{
-    char  amph;
-    Place from;
-    Place to;
-};
-
-struct OpenSet
-{
-    enum { Max = 48 };
-    Open    buf[Max];
-    int8_t  used;
-
-    OpenSet() : used(0)
-    {
-        memset(buf, 0, sizeof(buf));
-    }
-
-    void pushFromHall(char amph, uint8_t fromSpace, uint8_t toRoom, uint8_t toSpace)
-    {
-        _ASSERT(used < Max);
-        buf[used].amph = amph;
-
-        buf[used].from.inroom = 0;
-        buf[used].from.room = 0;
-        buf[used].from.space = fromSpace;
-
-        buf[used].to.inroom = 1;
-        buf[used].to.room = toRoom;
-        buf[used].to.space = toSpace;
-
-        ++used;
-    }
-
-    void pushFromRoom(char amph, uint8_t fromRoom, uint8_t fromSpace, uint8_t toHallSpace)
-    {
-        _ASSERT(used < Max);
-        buf[used].amph = amph;
-
-        buf[used].from.inroom = 1;
-        buf[used].from.room = fromRoom;
-        buf[used].from.space = fromSpace;
-
-        buf[used].to.inroom = 0;
-        buf[used].to.room = 0;
-        buf[used].to.space = toHallSpace;
-
-        ++used;
-    }
-
-    Open pop()
-    {
-        _ASSERT(used > 0);
-        return buf[used--];
-    }
-
-    bool empty() const  { return used == 0; }
-
-    const Open& back() const
-    {
-        _ASSERT(used > 0);
-        return buf[used];
-    }
-};
-
-struct State
-{
-    int64_t score;
-    Hall h;
-    OpenSet open;
-
-    void pushValidMovesFromHall(uint8_t hallSpace)
-    {
-        char amph = h.spaces[hallSpace];
-
-        // we can move into any open room
-    }
-
-    State(int64_t score, const Hall& hall) : score(score), h(hall)
-    {
-        for (char* c = h.spaces; *c; ++c)
-        {
-            if (*c != '_')
-                open.pushHall(uint8_t(c - h.spaces), *c);
-        }
-        for (uint8_t i=0; i<4; ++i)
-        {
-            const Room& r = h.rooms[i];
-            if (r.spaces[0] != '_' && !ISLWR(r.spaces[0]))
-            {
-                open.pushRoom(i, 0, r.spaces[0]);
-                continue;
-            }
-            if (r.spaces[1] != '_' && !ISLWR(r.spaces[1]))
-            {
-                open.pushRoom(i, 1, r.spaces[1]);
-                continue;
+                --awayRemaining;
+                r.spaces[1] = AS_HOME(r.spaces[1]);
+                if (r.spaces[0] == type)
+                {
+                    --awayRemaining;
+                    r.spaces[0] = AS_HOME(r.spaces[0]);
+                }
             }
         }
     }
 
-    bool isComplete() const
+    Hall(const Hall& prev, bool link)
     {
-        for (auto& r : h.rooms)
-        {
-            if (!ISLWR(r.spaces[0]))
-                return false;
-        }
-        return true;
+        _ASSERT(link);
+        (void)link;
+
+        memcpy(this, &prev, sizeof(Hall));
+        this->prev = &prev;
     }
 };
-
-const int64_t MoveCost[4] = { 1, 10, 100, 1000 };
 
 ostream& operator<<(ostream& os, const Hall& h)
 {
@@ -203,40 +74,144 @@ ostream& operator<<(ostream& os, const Hall& h)
     return os;
 }
 
+const int64_t MoveCost[4] = { 1, 10, 100, 1000 };
+
+void doNextMove(const Hall& prev, int64_t currCost, int64_t& bestCost);
+
+inline void tryMoveFromHall(const Hall& prev, uint8_t hallSpace, int64_t currCost, int64_t& bestCost)
+{
+    char amph = prev.spaces[hallSpace];
+    _ASSERT(amph != '!');
+    if (amph == '.')
+        return;
+
+    _ASSERT(IS_AWAY(amph));
+    auto roomIx = uint8_t(amph - 'A');
+    auto roomPos = ROOMIX_TO_POS(roomIx);
+
+    int d = (roomPos > hallSpace) ? 1 : -1;
+    for (auto s = hallSpace + d; s != roomPos; s += d)
+    {
+        if (IS_AWAY(prev.spaces[s]))
+            return;
+    }
+
+    const Room& room = prev.rooms[roomIx];
+    if (room.spaces[0] != '.')
+        return;
+    if (IS_AWAY(room.spaces[1]))
+        return;
+
+    uint8_t roomSpace = (room.spaces[1] == '.') ? 1 : 0;
+
+    auto moveCost = MoveCost[amph - 'A'];
+    auto distance = roomSpace + 1 + uint8_t(abs(roomPos - hallSpace));
+    auto newCost = currCost + distance * moveCost;
+
+    Hall h(prev, true);
+    h.spaces[hallSpace] = '.';
+    h.rooms[roomIx].spaces[roomSpace] = AS_HOME(amph);
+    --h.awayRemaining;
+
+    if (h.awayRemaining == 0)
+    {
+        if (newCost < bestCost)
+        {
+            bestCost = newCost;
+            //cout << "found a solution costing " << newCost << ":\n" << h << endl;
+        }
+    }
+    else
+    {
+        doNextMove(h, newCost, bestCost);
+    }
+}
+
+inline void moveFromRoomToHall(const Hall& prev, uint8_t roomIx, uint8_t roomSpace, uint8_t hallSpace, int64_t currCost, int64_t& bestCost)
+{
+    char amph = prev.rooms[roomIx].spaces[roomSpace];
+
+    _ASSERT(amph - 'A' >= 0 && amph - 'A' < 4);
+    auto moveCost = MoveCost[amph - 'A'];
+    auto roomPos = ROOMIX_TO_POS(roomIx);
+    auto distance = roomSpace + 1 + uint8_t(abs(roomPos - hallSpace));
+    auto newCost = currCost + distance * moveCost;
+
+    Hall h(prev, true);
+    h.rooms[roomIx].spaces[roomSpace] = '.';
+    h.spaces[hallSpace] = amph;
+
+    doNextMove(h, newCost, bestCost);
+}
+
+inline void tryMoveFromRoom(const Hall& prev, uint8_t roomIx, int64_t currCost, int64_t& bestCost)
+{
+    const Room& room = prev.rooms[roomIx];
+    if (IS_HOME(room.spaces[0]))
+        return;
+
+    uint8_t roomSpace = 0;
+    if (IS_AWAY(room.spaces[0]))
+    {
+        roomSpace = 0;
+    }
+    else
+    {
+        _ASSERT(room.spaces[0] == '.');
+        if (IS_HOME(room.spaces[1]) || (room.spaces[1] == '.'))
+            return;
+        roomSpace = 1;
+    }
+
+    // try hallway to the left
+    uint8_t roomPos = ROOMIX_TO_POS(roomIx);
+    for (int hallSpace = roomPos - 1; hallSpace >= 0; --hallSpace)
+    {
+        if (prev.spaces[hallSpace] == '!')
+            continue;
+        if (prev.spaces[hallSpace] != '.')
+            break;
+
+        moveFromRoomToHall(prev, roomIx, roomSpace, uint8_t(hallSpace), currCost, bestCost);
+    }
+
+    // try hallway to the right
+    for (int hallSpace = roomPos + 1; hallSpace < HallSize; ++hallSpace)
+    {
+        if (prev.spaces[hallSpace] == '!')
+            continue;
+        if (prev.spaces[hallSpace] != '.')
+            break;
+
+        moveFromRoomToHall(prev, roomIx, roomSpace, uint8_t(hallSpace), currCost, bestCost);
+    }
+}
+
+void doNextMove(const Hall& prev, int64_t currCost, int64_t& bestCost)
+{
+    tryMoveFromHall(prev, 0, currCost, bestCost);
+    tryMoveFromHall(prev, 1, currCost, bestCost);
+    tryMoveFromHall(prev, 3, currCost, bestCost);
+    tryMoveFromRoom(prev, 0, currCost, bestCost);
+    tryMoveFromHall(prev, 5, currCost, bestCost);
+    tryMoveFromRoom(prev, 1, currCost, bestCost);
+    tryMoveFromHall(prev, 7, currCost, bestCost);
+    tryMoveFromRoom(prev, 2, currCost, bestCost);
+    tryMoveFromHall(prev, 9, currCost, bestCost);
+    tryMoveFromRoom(prev, 3, currCost, bestCost);
+    tryMoveFromHall(prev, 10, currCost, bestCost);
+}
+
+
 int64_t day23(const stringlist& input)
 {
     Hall h(input);
     cout << h;
 
-    vector<State> best;
-    int64_t bestScore = numeric_limits<int64_t>::max();
-    vector<State> states;
-    states.emplace_back(0, h);
-    while (states.empty())
-    {
-        auto& state = states.back();
+    int64_t bestCost = INT64_MAX;
+    doNextMove(h, 0, bestCost);
 
-        if (state.isComplete())
-        {
-            if (state.score < bestScore)
-            {
-                best = states;
-                bestScore = state.score;
-                states.pop_back();
-                continue;
-            }
-        }
-        if (state.open.empty())
-        {
-            states.pop_back();
-            continue;
-        }
-
-        Open move = state.open.pop();
-
-    }
-
-    return bestScore;
+    return bestCost;
 }
 
 int day23_2(const stringlist& input)
@@ -259,8 +234,8 @@ R"(#############
   #A#D#C#A#
   #########)";
 
-    test(-100, day23(READ(sample)));
-    //gogogo(day23(LOAD(23)));
+    test(12521, day23(READ(sample)));
+    gogogo(day23(LOAD(23)));
 
     //test(-100, day23_2(READ(sample)));
     //gogogo(day23_2(LOAD(23)));

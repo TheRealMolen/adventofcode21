@@ -176,6 +176,9 @@
     <Text Include="data\day22t2.txt">
       <Filter>data</Filter>
     </Text>
+    <Text Include="data\day23.txt">
+      <Filter>data</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="aoc.natvis">
