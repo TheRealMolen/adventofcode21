@@ -159,21 +159,28 @@ void testMonad(const stringlist& source, const char* inp)
 #define TEST_PART(n, pc)        do{}while(0)
 #endif
 
+    // ((in[0] + 7) << 1) + (in[1] + 4)
     int64_t z_part1 = (((in[0] + 7) * 26) + in[1] + 4);
     TEST_PART(1, 40);
 
+    // ensure: in[3] == in[2] + 4
+    // then z = ((in[0] + 7) << 1) + (in[1] + 4)
     int64_t in23valid = (in[3] != (in[2] + 4));
     int64_t y_part2 = in23valid ? 26 : 1;
-    [[maybe_unused]] int64_t z_part2 = z_part1 * y_part2;
+    int64_t z_part2 = z_part1 * y_part2;
     TEST_PART(2, 50);
 
-    int64_t z_part3 = (z_part1 * (in23valid ? 26 : 1)) + (in[3] + 1) * in23valid;
+    // z = ((in[0] + 7) << 1) + (in[1] + 4)
+    int64_t z_part3 = z_part2 + (in[3] + 1) * in23valid;
     TEST_PART(3, 74);
+    // z = ((in[0] + 7) << 2) + ((in[1] + 4) << 1) + (in[4] + 5)
     int64_t z_part4 = (z_part3 * 26) + (in[4] + 5);
 
+    // z = ((in[0] + 7) << 3) + ((in[1] + 4) << 2) + ((in[4] + 5) << 1) + ((in[5] + 14) << 0)
     int64_t z_part5 = (z_part4 * 26) + in[5] + 14;
     TEST_PART(5, 110);
 
+    // ensure: in[7] == in[6] + 3
     int64_t in67valid = (in[6] + 3) != in[7];
     int64_t z_part6 = z_part5 * (in67valid ? 26 : 1);
     TEST_PART(6, 140);
@@ -181,52 +188,140 @@ void testMonad(const stringlist& source, const char* inp)
     int64_t z_part7 = z_part6 + ((in[7] + 10) * in67valid);
     TEST_PART(7, 146);
 
+    // ensure: in[8] == in[5] + 5
     int64_t in8valid = ((z_part7 % 26) - 9) != in[8];
+    // z = ((in[0] + 7) << 2) + ((in[1] + 4) << 1) + ((in[4] + 5) << 0)
     int64_t z_part8 = ((z_part7 / 26) * (in8valid ? 26 : 1)) + ((in[8] + 5) * in8valid);
     TEST_PART(8, 164);
 
+    // ensure: in[10] == in[9] - 8
     int64_t in910valid = (in[9] - 8) != in[10];
     int64_t z_part9 = (z_part8 * (in910valid ? 26 : 1)) + ((in[10] + 6) * in910valid);
     TEST_PART(9, 200);
 
+    // in11valid = (in[4] + 5) - 7 != in[11]
+    // ensure: in[11] == in[4] - 2
     int64_t in11valid = ((z_part9 % 26) - 7) != in[11];
+    // z = ((in[0] + 7) << 1) + ((in[1] + 4) << 0)
     int64_t z_part10 = (z_part9 / 26) * (in11valid ? 26 : 1) + ((in[11] + 8) * in11valid);
     TEST_PART(10, 218);
 
+    // in12valid = (in[1] + 4) - 10 != in[12]
+    // ensure: in[12] == in[1] - 6
     int64_t in12valid = ((z_part10 % 26) - 10) != in[12];
+    // z = in[0]
     int64_t z_part11 = ((z_part10 / 26) * (in12valid ? 26 : 1)) + ((in[12] + 4) * in12valid);
 
+    // ensure: in[13] == in[0] + 7
     int64_t in13valid = (z_part11 % 26) != in[13];
     int64_t z_final = ((z_part11 / 26) * (in13valid ? 26 : 1)) + ((in[13] + 6) * in13valid);
     test(z_final, runAluProg(monad, inp));
 }
 
+array<char, 15> keygen()
+{
+    array<char, 15> key;
+
+    // ensure: key[13] == key[0] + 7
+    key[13] = '9';
+    key[0] = key[13] - 7;
+
+    // ensure: key[12] == key[1] - 6
+    key[1] = '9';
+    key[12] = key[1] - 6;
+
+    // ensure: key[3] == key[2] + 4
+    key[3] = '9';
+    key[2] = key[3] - 4;
+
+    // ensure: key[7] == key[6] + 3
+    key[7] = '9';
+    key[6] = key[7] - 3;
+
+    // ensure: key[8] == key[5] + 5
+    key[8] = '9';
+    key[5] = key[8] - 5;
+
+    // ensure: key[10] == key[9] - 8
+    key[9] = '9';
+    key[10] = key[9] - 8;
+
+    // ensure: key[11] == key[4] - 2
+    key[4] = '9';
+    key[11] = key[4] - 2;
+
+    key[14] = 0;
+
+    return key;
+}
+
+array<char, 15> keygenSmall()
+{
+    array<char, 15> key;
+
+    // ensure: key[13] == key[0] + 7
+    key[0] = '1';
+    key[13] = key[0] + 7;
+
+    // ensure: key[12] == key[1] - 6
+    key[12] = '1';
+    key[1] = key[12] + 6;
+
+    // ensure: key[3] == key[2] + 4
+    key[2] = '1';
+    key[3] = key[2] + 4;
+
+    // ensure: key[7] == key[6] + 3
+    key[6] = '1';
+    key[7] = key[6] + 3;
+
+    // ensure: key[8] == key[5] + 5
+    key[5] = '1';
+    key[8] = key[5] + 5;
+
+    // ensure: key[10] == key[9] - 8
+    key[10] = '1';
+    key[9] = key[10] + 8;
+
+    // ensure: key[11] == key[4] - 2
+    key[11] = '1';
+    key[4] = key[11] + 2;
+
+    key[14] = 0;
+
+    return key;
+}
+
 
 int day24(const stringlist& input)
 {
-    for (auto& line : input)
-    {
-        (void)line;
-    }
+    auto key = keygen();
 
-    return -1;
+    cout << "biggest generated key: " << string_view(key.data(), key.size()) << endl;
+    testMonad(input, key.data());
+
+    AluProgram monad = parseAluProgram(input);
+
+    return (int)runAluProg(monad, key.data());
 }
 
 int day24_2(const stringlist& input)
 {
-    for (auto& line : input)
-    {
-        (void)line;
-    }
+    auto key = keygenSmall();
 
-    return -1;
+    cout << "smallest generated key: " << string_view(key.data(), key.size()) << endl;
+    testMonad(input, key.data());
+
+    AluProgram monad = parseAluProgram(input);
+
+    return (int)runAluProg(monad, key.data());
 }
 
 
 void run_day24()
 {
     string cmp3x =
-        R"(inp z
+R"(inp z
 inp x
 mul z 3
 eql z x)";
@@ -250,8 +345,7 @@ add z 2)";
     testMonad(LOAD(24), "12351678912345");
     testMonad(LOAD(24), "99988877766655");
     testMonad(LOAD(24), "11111111111111");
-    //gogogo(day24(LOAD(24)));
+    gogogo(day24(LOAD(24)), 0);
 
-    //test(-100, day24_2(READ(sample)));
-    //gogogo(day24_2(LOAD(24)));
+    gogogo(day24_2(LOAD(24)), 0);
 }
