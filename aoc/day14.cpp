@@ -6,7 +6,7 @@ using PolyRules = vector<pair<PolyKey, char>>;
 using Polymer = vector<char>;
 using PolyPairCount = unordered_map<PolyKey,int64_t>;
 
-pair<Polymer,PolyRules> parseInput(const stringlist& input)
+pair<Polymer,PolyRules> parsePolymers(const stringlist& input)
 {
     PolyRules rules;
     rules.reserve(input.size() - 2);
@@ -38,7 +38,7 @@ char findElementToInsert(const char* old, const PolyRules& rules)
 
 int64_t day14(const stringlist& input, int numSteps=10)
 {
-    auto [poly, rules] = parseInput(input);
+    auto [poly, rules] = parsePolymers(input);
     PolyPairCount count, working;
     for (auto& [key, val] : rules)
     {

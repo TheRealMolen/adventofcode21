@@ -111,6 +111,9 @@
     <ClInclude Include="chargrid.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="pt3.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\day1.txt">
@@ -190,6 +193,12 @@
     </Text>
     <Text Include="day24.alu.txt">
       <Filter>Doc</Filter>
+    </Text>
+    <Text Include="data\day19.txt">
+      <Filter>data</Filter>
+    </Text>
+    <Text Include="data\day19t.txt">
+      <Filter>data</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>

@@ -1,20 +1,7 @@
 #include "pch.h"
 #include "harness.h"
+#include "pt3.h"
 
-struct Pt3i
-{
-    int x, y, z;
-
-    auto operator<=>(const Pt3i&) const = default;
-
-    Pt3i& operator+=(int t)
-    {
-        x += t;
-        y += t;
-        z += t;
-        return *this;
-    }
-};
 
 Pt3i minByEl(const Pt3i& a, const Pt3i& b)
 {

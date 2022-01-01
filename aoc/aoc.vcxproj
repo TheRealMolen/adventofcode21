@@ -59,6 +59,7 @@
     <ClInclude Include="harness.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="pt2.h" />
+    <ClInclude Include="pt3.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\day1.txt" />
@@ -71,6 +72,8 @@
     <Text Include="data\day16.txt" />
     <Text Include="data\day17.txt" />
     <Text Include="data\day18.txt" />
+    <Text Include="data\day19.txt" />
+    <Text Include="data\day19t.txt" />
     <Text Include="data\day2.txt" />
     <Text Include="data\day20.txt" />
     <Text Include="data\day21.txt" />
