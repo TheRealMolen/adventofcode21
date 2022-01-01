@@ -92,7 +92,6 @@ void testRotate()
     {
         for (int spin = 0; spin < 4; ++spin)
         {
-            //cout << "rot " << p << " by " << axis << "/" << spin << " => " << rotate(p, axis, spin) << endl;
             auto itInserted = rots.insert(rotate(p, axis, spin));
             if (!itInserted.second)
                 cout << RED << "dup rotate: " << RESET << axis << "/" << spin << " resulted in " << rotate(p, axis, spin) << endl;
@@ -139,27 +138,16 @@ Reports parseScannerReports(const stringlist& input)
 
 uint32_t MinOverlaps = 12;
 
-#define D_ENABLE_LOGx
-#ifdef D_ENABLE_LOG
-ostream* g_log = nullptr;
-#define LOG(expr)   do { if (g_log) { *g_log << expr << '\n'; } } while(0)
-#else
-#define LOG(expr)   do{}while(0)
-#endif
-
 bool checkTranslation(const Pt3i& refToTest, const Pt3i* pTest, const Pt3i* testBufEnd, const Pt3i* pRef, const Pt3i* refBufEnd, Report& working)
 {
     uint32_t remaining = MinOverlaps - 1;   // -1 because every test point is an overlap
 
     for (auto itTest = pTest + 1; itTest <= (testBufEnd - remaining); ++itTest)
     {
-        LOG("     .. testing next point " << *itTest << "....");
         for (auto itRef = pRef + 1; itRef != refBufEnd; ++itRef)
         {
-            LOG("      .. does it match " << *itRef << "? xlation gives " << (*itRef + refToTest));
             if (*itRef + refToTest == *itTest)
             {
-                LOG("      .. YES!");
                 --remaining;
                 if (remaining == 0)
                 {
@@ -187,12 +175,10 @@ bool checkForOverlap(const Report& ref, const Report& test, Report& working)
     {
         for (int spin = 0; spin < 4; ++spin)
         {
-            LOG(" .. checking " << axis << "/" << spin);
             working.points.clear();
 
             ranges::transform(test, back_inserter(working.points), [=](const Pt3i& p) { return rotate(p, axis, spin); });
             ranges::sort(working);
-            LOG(" .. first point @ " << axis << "/" << spin << ": " << working.points.front());
 
             auto testBuf = working.points.data();
             auto testBufEnd = testBuf + working.points.size();
@@ -200,13 +186,9 @@ bool checkForOverlap(const Report& ref, const Report& test, Report& working)
             {
                 for (auto pRef = refBuf; pRef != refBufEnd; ++pRef)
                 {
-                    LOG("   .. assuming that " << *pTest << " matches " << *pRef << " -- xlate " << refToTest << " -- scanner @ " << (rotate(working.pos, axis, spin) - refToTest));
                     Pt3i refToTest = *pTest - *pRef;
                     if (checkTranslation(refToTest, pTest, testBufEnd, pRef, refBufEnd, working))
-                    {
-                        //cout << "    .. scanner " << working.scannernum << " @ " << axis << "/" << spin << " overlaps " << ref.scannernum << endl;
                         return true;
-                    }
                 }
             }
         }
@@ -232,12 +214,8 @@ Reports::iterator findOneMatch(const Reports& inRefFrame, Reports& reports, Repo
                 continue;
             g_alreadyTested.insert(key);
 
-            //cout << " -- checking scanner " << working.scannernum << " against ref " << ref.scannernum << endl;
             if (checkForOverlap(ref, *it, working))
-            {
-                //cout << "  ..found overlap between scanners " << ref.scannernum << " & " << working.scannernum << ". Scanner " << working.scannernum << " pos in ref frame: " << working.pos << endl;
                 return it;
-            }
         }
     }
 
@@ -248,13 +226,6 @@ int maxDistBetweenScanners = -1;
 
 int day19(const stringlist& input)
 {
-    TIME_SCOPE(d19);
-
-#ifdef D_ENABLE_LOG
-    ofstream logfs(format("day19_{}.txt", input.size()));
-    g_log = &logfs;
-#endif
-
     Reports reports = parseScannerReports(input);
 
     // use report 0 as reference frame
@@ -275,7 +246,6 @@ int day19(const stringlist& input)
             cout << RED << "failed to find match. known verts are:\n" << RESET;
             for (const auto& p : allKnown)
                 cout << p << "\n";
-            cout << endl;
 
             return -1;
         }
@@ -287,10 +257,6 @@ int day19(const stringlist& input)
 
         reports.erase(foundIt);
     }
-
-#ifdef D_ENABLE_LOG
-    g_log = nullptr;
-#endif
 
     const Report* a = &inRefFrame.front();
     const Report* b = a;
@@ -346,7 +312,7 @@ R"(--- scanner 0 ---
     test(79, day19(LOAD(19t)));
     test(3621, maxDistBetweenScanners);
 
-    nonono(day19(LOAD(19)));
+    nononoD(day19(LOAD(19)));
 
-    nonono(maxDistBetweenScanners);
+    nononoD(maxDistBetweenScanners);
 }
