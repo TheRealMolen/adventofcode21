@@ -337,7 +337,7 @@ void skip(const char* message = "cos it's really slow!");
 void jumptoday(int day);
 
 #define nest(...)
-#define nonono(...) skip()
+#define nonono(...) gogogo(__VA_ARGS__)
 
 #ifdef _DEBUG
 #define nononoD(...) skip("cos it's too slow for debug...")
